@@ -12,18 +12,6 @@ dotenv.config();
 // Configurar SendGrid
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-export const transporter = nodemailer.createTransport(
-  {
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
-    auth: {
-      user: "MAILTRAP_USER",
-      pass: "MAILTRAP_PASS",
-    },
-  }
-);
-
-
 app.post('/generar-rutina', async (req, res) => {
   try {
     const {
@@ -96,26 +84,6 @@ app.post('/enviar-confirmacion-correo', async (req, res) => {
   }
 });
 
-// Ruta POST para enviar confirmación de correo
-app.post('', async (req, res) => {
-  const { correo, nombre, token } = req.body;
-  const mailOptions = {
-    from: '"Tu App" <noreply@tuapp.com>',
-    to: correo,
-    subject: "Confirmación de correo",
-    text: `Hola ${nombre}, gracias por registrarte en nuestra aplicación Drimo Fit.`,
-    html: `Este es tu código de confirmación${token}`,
-  };
-
-  transporter.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      console.error("Error al enviar el correo:", error);
-      return res.status(500).send("Error al enviar el correo");
-    }
-    console.log("Correo enviado:", info.response);
-    res.status(200).send("Correo enviado correctamente");
-  });
-});
 
 
 // Ruta GET para confirmar el correo del usuario
