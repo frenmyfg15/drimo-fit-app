@@ -1,6 +1,5 @@
 import express from 'express';
 import databaseFunctions from './database.js';
-import nodemailer from 'nodemailer';
 import dotenv from 'dotenv';
 import sgMail from '@sendgrid/mail';
 
