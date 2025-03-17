@@ -5,7 +5,8 @@ import bcrypt from 'bcryptjs';
 
 dotenv.config();
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST, // 🔥 Agregar el puerto
+  host: process.env.MYSQL_HOST,
+  port: process.env.MYSQL_PORT||3306, // 🔥 Agregar el puerto
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
