@@ -682,7 +682,7 @@ app.put('/remplazar/:rutinaId/ejercicios/:ejercicioAsignadoId', async (req, res)
 });
 
 // Configurar el servidor para escuchar en un puerto
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en ${PORT}`);
 });
