@@ -12,6 +12,11 @@ dotenv.config();
 const sendgridApiKey = process.env.SENDGRID_API_KEY.replace(/^['"]|['"]$/g, '');
 sgMail.setApiKey(sendgridApiKey);
 
+app.get('/api/test', (req, res) => {
+  res.json({ success: true, message: "El servidor está funcionando correctamente en Railway!" });
+});
+
+
 
 app.post('/generar-rutina', async (req, res) => {
   try {
