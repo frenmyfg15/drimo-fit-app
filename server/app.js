@@ -12,8 +12,19 @@ dotenv.config();
 const sendgridApiKey = process.env.SENDGRID_API_KEY.replace(/^['"]|['"]$/g, '');
 sgMail.setApiKey(sendgridApiKey);
 
+//Métodos para comprobar el si el servidor funciona y si la base de datos está conectada correctamente
 app.get('/api/test', (req, res) => {
   res.json({ success: true, message: "El servidor está funcionando correctamente en Railway!" });
+});
+
+app.get("/api/test-db", async (req, res) => {
+  try {
+    const [result] = await pool.query("SELECT 2 + 2 AS resultado");
+    res.json({ success: true, resultado: result[0].resultado });
+  } catch (error) {
+    console.error("Error en la conexión a la base de datos:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 
