@@ -9,7 +9,9 @@ app.use(express.json());
 dotenv.config();
 
 // Configurar SendGrid
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+const sendgridApiKey = process.env.SENDGRID_API_KEY.replace(/^['"]|['"]$/g, '');
+sgMail.setApiKey(sendgridApiKey);
+
 
 app.post('/generar-rutina', async (req, res) => {
   try {
@@ -682,5 +684,5 @@ app.put('/remplazar/:rutinaId/ejercicios/:ejercicioAsignadoId', async (req, res)
 // Configurar el servidor para escuchar en un puerto
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en ${PORT}`);
 });
