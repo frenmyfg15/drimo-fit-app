@@ -19,11 +19,10 @@ app.get('/api/test', (req, res) => {
 
 app.get("/api/test-db", async (req, res) => {
   try {
-    const [result] = await pool.query("SELECT 2 + 2 AS resultado");
-    res.json({ success: true, resultado: result[0].resultado });
+    const [rows] = await pool.query("SELECT NOW() AS current_time");
+    res.json({ success: true, time: rows[0].current_time });
   } catch (error) {
-    console.error("Error en la conexión a la base de datos:", error);
-    res.status(500).json({ success: false, error: error.message });
+    res.json({ success: false, error: error.message });
   }
 });
 
@@ -698,7 +697,7 @@ app.put('/remplazar/:rutinaId/ejercicios/:ejercicioAsignadoId', async (req, res)
 });
 
 // Configurar el servidor para escuchar en un puerto
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor corriendo en ${PORT}`);
 });
