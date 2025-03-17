@@ -4,13 +4,8 @@ import bcrypt from 'bcryptjs';
 
 
 dotenv.config();
-console.log("MYSQL_HOST:", process.env.MYSQL_HOST);
-console.log("MYSQL_USER:", process.env.MYSQL_USER);
-console.log("MYSQL_PASSWORD:", process.env.MYSQL_PASSWORD);
-console.log("MYSQL_DATABASE:", process.env.MYSQL_DATABASE);
 const pool = mysql.createPool({
-  host: process.env.MYSQL_HOST,
-  port: process.env.MYSQL_PORT||3306, // 🔥 Agregar el puerto
+  host: process.env.MYSQL_HOST, // 🔥 Agregar el puerto
   user: process.env.MYSQL_USER,
   password: process.env.MYSQL_PASSWORD,
   database: process.env.MYSQL_DATABASE,
@@ -1066,8 +1061,8 @@ export const getUserExerciseStats = async (usuario_id, ejercicio_id) => {
 };
 
 
-//Función para crear una rutina personalizada
-async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador_id, ejercicios) {
+// Función para crear una rutina personalizada
+async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador_id, ejercicios, usuario_id) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -1113,8 +1108,14 @@ async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador
       }
     }
 
+    // 5. Asignar la rutina al usuario
+    await connection.execute(
+      `UPDATE usuarios SET rutina_id = ? WHERE id = ?`,
+      [rutinaId, usuario_id]
+    );
+
     await connection.commit();
-    console.log('✅ Rutina creada exitosamente');
+    console.log('✅ Rutina creada y asignada exitosamente');
     return rutinaId;
   } catch (error) {
     await connection.rollback();
@@ -1124,6 +1125,7 @@ async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador
     connection.release();
   }
 }
+
 
 //Función para obtener todas las rutinas de un usuario
 async function obtenerRutinasConDias(usuarioId) {
