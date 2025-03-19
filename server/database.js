@@ -345,7 +345,6 @@ export async function obtenerEjercicios(rutinaId, dia) {
           ? rows[0].musculos_dia // Ya es un array válido
           : JSON.parse(rows[0].musculos_dia); // Intentar parsear solo si es JSON
       } catch (error) {
-        console.error("⚠️ Error al parsear musculos_dia, corrigiendo formato:", error);
         musculosDia = rows[0].musculos_dia.split(',').map(m => m.trim()); // ✅ Convertir texto a array manualmente
       }
     }
@@ -745,7 +744,6 @@ const comprobarRutinaCompletada = async (usuario_id, fecha) => {
     if (completado) {
       return { success: true, completado: true, message: "Rutina completada." };
     } else {
-      console.log(`❌ La rutina del usuario ${usuario_id} NO fue completada el ${fecha}.`);
       return { success: true, completado: false, message: "Rutina no completada." };
     }
 
