@@ -5,7 +5,7 @@ import sgMail from '@sendgrid/mail';
 
 const app = express();
 app.use(express.json());
-
+console
 dotenv.config();
 
 // Configurar SendGrid
@@ -34,7 +34,6 @@ app.post('/generar-rutina', async (req, res) => {
       usuarioId, nombreRutina, tiempoDisponible, enfoqueUsuario, diasEntrenamiento,
       objetivo, nivel, restricciones = [], lugarEntrenamiento
     } = req.body;
-    console.log(req.body);
 
     if (!usuarioId || !nombreRutina || !tiempoDisponible || !diasEntrenamiento || !objetivo || !nivel || !lugarEntrenamiento) {
       return res.status(401).json({ success: false, message: 'Faltan datos requeridos' });
@@ -92,10 +91,10 @@ app.post('/enviar-confirmacion-correo', async (req, res) => {
 
   try {
     await sgMail.send(msg);
-    console.log('Correo enviado con éxito');
+
     res.status(200).send('Correo enviado correctamente');
   } catch (error) {
-    console.error('Error al enviar el correo:', error);
+
     res.status(500).send('Error al enviar el correo');
   }
 });
@@ -112,7 +111,7 @@ app.get('/confirmar-correo', async (req, res) => {
     }
     res.redirect('DRIMOFIT://client');
   } catch (error) {
-    console.error('Error al confirmar el correo:', error);
+
     res.status(500).json({ message: 'Error interno del servidor.' });
   }
 });
@@ -190,7 +189,6 @@ app.post('/usuarios', async (req, res) => {
       res.status(400).json({ message: result.message });
     }
   } catch (error) {
-    console.error('Error al insertar usuario:', error);
     res.status(500).json({ message: 'Error interno del servidor' });
   }
 });
@@ -219,7 +217,6 @@ app.post('/login', async (req, res) => {
       user: result.user
     });
   } catch (error) {
-    console.error('Error en /login:', error);
     res.status(500).json({ message: 'Error interno del servidor.' });
   }
 });
@@ -238,7 +235,6 @@ app.post("/obtener-rutina", async (req, res) => {
 
     res.status(200).json(resultado);
   } catch (error) {
-    console.error("❌ Error en /obtener-rutina:", error);
     res.status(500).json({ success: false, message: "Error interno del servidor." });
   }
 });
@@ -262,7 +258,6 @@ app.post('/ejercicios', async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-    console.error('❌ Error al obtener ejercicios:', error);
     res.status(500).json({ success: false, message: 'Error interno del servidor.' });
   }
 });
@@ -281,7 +276,6 @@ app.post('/material', async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error al obtener materiales:', error);
     res.status(500).json({ message: `Error en el servidor: ${error.message}` });
   }
 });
@@ -299,7 +293,6 @@ app.post('/instruccion', async (req, res) => {
 
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error al obtener instrucciones:', error);
     res.status(500).json({ message: `Error en el servidor: ${error.message}` });
   }
 });
@@ -315,7 +308,6 @@ app.post("/comprobar-estadistica", async (req, res) => {
     const resultado = await databaseFunctions.comprobarEstadistica(usuarioId, ejercicioId, fecha);
     res.status(200).json(resultado);
   } catch (error) {
-    console.error("Error en /comprobar-estadistica:", error);
     res.status(500).json({ success: false, message: "Error interno del servidor." });
   }
 });
@@ -331,7 +323,6 @@ app.post("/registrar-estadistica", async (req, res) => {
     const resultado = await databaseFunctions.insertarEstadistica(usuarioId, ejercicioId, fecha, series);
     res.status(200).json(resultado);
   } catch (error) {
-    console.error("Error en /registrar-estadistica:", error);
     res.status(500).json({ success: false, message: "Error interno del servidor." });
   }
 });
@@ -353,7 +344,6 @@ app.post('/series-estadistica', async (req, res) => {
 
     res.json(series);
   } catch (error) {
-    console.error("Error en la ruta /series-estadistica:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -374,7 +364,6 @@ app.post('/ejercicios-completado', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error("❌ Error en la ruta /ejercicios-completado:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -391,7 +380,6 @@ app.post('/comprobar-ejercicio-completado', async (req, res) => {
 
     res.json(result);
   } catch (error) {
-    console.error("❌ Error en la ruta /ejercicio-completado:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -408,7 +396,6 @@ app.post("/verificar-dia-completado", async (req, res) => {
     const completado = await databaseFunctions.verificarTodosEjerciciosCompletados(rutina_id, dia, fecha);
     res.json({ completado });
   } catch (error) {
-    console.error("Error en /verificar-dia-completado:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -425,7 +412,6 @@ app.post("/registrar-rutina-completada", async (req, res) => {
     const resultado = await databaseFunctions.registrarRutinaCompletada(usuario_id, fecha);
     res.json(resultado);
   } catch (error) {
-    console.error("❌ Error en /registrar-rutina-completada:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -442,7 +428,6 @@ app.post("/comprobar-rutina-completada", async (req, res) => {
     const resultado = await databaseFunctions.comprobarRutinaCompletada(usuario_id, fecha);
     res.json(resultado);
   } catch (error) {
-    console.error("❌ Error en /comprobar-rutina-completada:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
 });
@@ -467,7 +452,6 @@ app.post("/obtener-ejercicios", async (req, res) => {
     res.status(200).json(resultado);
 
   } catch (error) {
-    console.error("❌ Error en /obtener-ejercicios:", error);
     res.status(500).json({
       success: false,
       message: "Error interno del servidor",
@@ -567,7 +551,6 @@ app.post('/actualizar-datos', async (req, res) => {
 
 app.post('/obtener-estadisticas-ejercicio', async (req, res) => {
   const { usuario_id, ejercicio_id } = req.body;
-  console.log('📩 Datos recibidos en el servidor:', req.body);
 
   if (!usuario_id || !ejercicio_id) {
     return res.status(400).json({ error: "usuario_id y ejercicio_id son requeridos" });
@@ -594,10 +577,8 @@ app.post('/obtener-estadisticas-ejercicio', async (req, res) => {
       series: groupedData[fecha]
     }));
 
-    console.log('✅ Respuesta enviada:', formattedResponse);
     res.json({ success: true, estadisticas: formattedResponse });
   } catch (error) {
-    console.error("❌ Error en la consulta:", error);
     res.status(500).json({ error: "Error al obtener las estadísticas" });
   }
 });
@@ -606,19 +587,28 @@ app.post('/obtener-estadisticas-ejercicio', async (req, res) => {
 // 📌 POST: Crear una nueva rutina
 app.post('/rutinas-personalizadas', async (req, res) => {
   try {
-    const { nombre, descripcion, nivel, objetivo, usuario_creador_id, ejercicios } = req.body;
-    console.log(req.body)
+    let { nombre, descripcion, nivel, objetivo, usuario_id, ejercicios } = req.body;
 
-    if (!nombre || !nivel || !objetivo || !usuario_creador_id || !ejercicios) {
+    console.log('BODY RECIBIDO:', req.body);
+    if (!nombre || !nivel || !objetivo || !usuario_id || !ejercicios) {
       return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
 
-    const rutinaId = await databaseFunctions.crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador_id, ejercicios);
+    // Si ejercicios llega como string, parsear:
+    if (typeof ejercicios === 'string') {
+      ejercicios = JSON.parse(ejercicios);
+    }
+
+    const rutinaId = await databaseFunctions.crearRutina(
+      nombre, descripcion, nivel, objetivo, usuario_id, ejercicios
+    );
     res.status(201).json({ message: 'Rutina creada exitosamente', rutinaId });
   } catch (error) {
+    console.error('❌ Error en endpoint:', error);
     res.status(500).json({ error: 'Error al crear la rutina', details: error.message });
   }
 });
+
 
 // 📌 POST: Obtener rutinas con días asignados por usuario
 app.post('/rutinas', async (req, res) => {
@@ -630,9 +620,6 @@ app.post('/rutinas', async (req, res) => {
 
     const rutinas = await databaseFunctions.obtenerRutinasConDias(usuarioId);
 
-    if (rutinas.length > 0) {
-      console.log(rutinas);
-    }
 
     res.json(rutinas); // Devuelve las rutinas o un array vacío si no hay
   } catch (error) {
@@ -691,7 +678,6 @@ app.put('/remplazar/:rutinaId/ejercicios/:ejercicioAsignadoId', async (req, res)
     const result = await databaseFunctions.reemplazarEjercicio(rutinaId, ejercicioAsignadoId, nuevoEjercicioId);
     res.status(200).json(result);
   } catch (error) {
-    console.error("Error al reemplazar el ejercicio:", error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -699,5 +685,4 @@ app.put('/remplazar/:rutinaId/ejercicios/:ejercicioAsignadoId', async (req, res)
 // Configurar el servidor para escuchar en un puerto
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en ${PORT}`);
 });

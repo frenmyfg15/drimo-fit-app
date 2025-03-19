@@ -114,7 +114,6 @@ export async function insertUser(
     // ✅ Confirmar la transacción
     await connection.commit();
 
-    console.log("✅ Usuario insertado con éxito:", userId);
     return { success: true, message: "Usuario insertado con éxito", userId };
 
   } catch (err) {
@@ -325,8 +324,6 @@ export async function obtenerEjercicios(rutinaId, dia) {
     // Ejecutar la consulta con los parámetros proporcionados
     const [rows] = await pool.query(query, [rutinaId, dia]);
 
-    // 🔹 Depuración: Ver qué datos llegan desde la BD
-    console.log(`📌 Datos crudos obtenidos de la BD para ${dia}:`, rows);
 
     // Si no se encuentran ejercicios, retornar una respuesta adecuada
     if (rows.length === 0) {
@@ -460,8 +457,7 @@ export async function obtenerInstrucciones(id_ejercicio) {
     const [rows] = await pool.query(query, [id_ejercicio]);
 
     // Si no se encuentran instrcucicones, retornar una respuesta adecuada
-    if (rows.length === 0) {
-      console.log('No se encontraron instrcucicones para el ejercicio');
+    if (rows.length === 0) {;
       return {
         success: false,
         message: 'No se encontraron instrcucicones para el ejercicio',
@@ -706,8 +702,6 @@ const verificarTodosEjerciciosCompletados = async (rutina_id, dia, fecha) => {
 
     const totalCompletados = completados[0].completados;
 
-    console.log(`📊 Total Asignados: ${totalEjercicios}, Completados: ${totalCompletados}`);
-
     // 3️⃣ Devolver true si todos los ejercicios están completados
     return totalCompletados === totalEjercicios;
 
@@ -724,7 +718,6 @@ const registrarRutinaCompletada = async (usuario_id, fecha) => {
     const [verificar] = await pool.query(verificarQuery, [usuario_id, fecha]);
 
     if (verificar[0].count > 0) {
-      console.log(`⚠️ La rutina del usuario ${usuario_id} ya fue completada el ${fecha}.`);
       return { success: false, message: "La rutina ya está registrada para esta fecha." };
     }
 
@@ -732,7 +725,6 @@ const registrarRutinaCompletada = async (usuario_id, fecha) => {
     const insertarQuery = `INSERT INTO rutina_completada (usuario_id, fecha) VALUES (?, ?)`;
     await pool.query(insertarQuery, [usuario_id, fecha]);
 
-    console.log(`✅ Rutina completada registrada para el usuario ${usuario_id} en la fecha ${fecha}.`);
     return { success: true, message: "Rutina completada registrada exitosamente." };
 
   } catch (error) {
@@ -751,7 +743,6 @@ const comprobarRutinaCompletada = async (usuario_id, fecha) => {
     const completado = result[0].count > 0;
 
     if (completado) {
-      console.log(`✅ La rutina del usuario ${usuario_id} fue completada el ${fecha}.`);
       return { success: true, completado: true, message: "Rutina completada." };
     } else {
       console.log(`❌ La rutina del usuario ${usuario_id} NO fue completada el ${fecha}.`);
@@ -1063,7 +1054,7 @@ export const getUserExerciseStats = async (usuario_id, ejercicio_id) => {
 
 
 // Función para crear una rutina personalizada
-async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador_id, ejercicios, usuario_id) {
+async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_id, ejercicios) {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
@@ -1071,11 +1062,11 @@ async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador
     // 1. Insertar rutina
     const [rutinaResult] = await connection.execute(
       `INSERT INTO rutinas (nombre, descripcion, nivel, objetivo, usuario_creador_id) VALUES (?, ?, ?, ?, ?)`,
-      [nombre, descripcion, nivel, objetivo, usuario_creador_id]
+      [nombre, descripcion, nivel, objetivo, usuario_id]
     );
     const rutinaId = rutinaResult.insertId;
 
-    // 2. Insertar días (sin duplicados)
+    // 2. Insertar días
     const diasMap = {};
     for (const ejercicio of ejercicios) {
       if (!diasMap[ejercicio.dia]) {
@@ -1087,36 +1078,41 @@ async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador
       }
     }
 
-    // 3. Insertar ejercicios asignados
-    const ejerciciosMap = {};
+    // 3. Insertar ejercicios asignados y series
     for (const ejercicio of ejercicios) {
-      if (!ejerciciosMap[ejercicio.id]) {
-        const [ejercicioAsignadoResult] = await connection.execute(
-          `INSERT INTO ejercicios_asignados (dia_id, ejercicio_id, descanso) VALUES (?, ?, ?)`,
-          [diasMap[ejercicio.dia], ejercicio.id, ejercicio.descanso]
-        );
-        ejerciciosMap[ejercicio.id] = ejercicioAsignadoResult.insertId;
-      }
-    }
+      // Validaciones previas
+      const sets = parseInt(ejercicio.sets);
+      const reps = parseInt(ejercicio.reps);
+      const duracionSet = parseInt(ejercicio.duracionSet);
+      const descanso = parseInt(ejercicio.descanso);
 
-    // 4. Insertar series
-    for (const ejercicio of ejercicios) {
-      for (let i = 0; i < parseInt(ejercicio.sets); i++) {
+      if (isNaN(sets) || isNaN(reps) || isNaN(duracionSet) || isNaN(descanso)) {
+        throw new Error(
+          `Valores inválidos en ejercicio: ${JSON.stringify(ejercicio)}`
+        );
+      }
+
+      const [ejercicioAsignadoResult] = await connection.execute(
+        `INSERT INTO ejercicios_asignados (dia_id, ejercicio_id, descanso) VALUES (?, ?, ?)`,
+        [diasMap[ejercicio.dia], ejercicio.id_ejercicio, descanso]
+      );
+      const ejercicioAsignadoId = ejercicioAsignadoResult.insertId;
+
+      for (let i = 0; i < sets; i++) {
         await connection.execute(
           `INSERT INTO series (ejercicio_asignado_id, repeticiones, tiempo_aproximado) VALUES (?, ?, ?)`,
-          [ejerciciosMap[ejercicio.id], ejercicio.reps, ejercicio.duracionSet]
+          [ejercicioAsignadoId, reps, duracionSet]
         );
       }
     }
 
-    // 5. Asignar la rutina al usuario
+    // 4. Asignar rutina al usuario
     await connection.execute(
       `UPDATE usuarios SET rutina_id = ? WHERE id = ?`,
       [rutinaId, usuario_id]
     );
 
     await connection.commit();
-    console.log('✅ Rutina creada y asignada exitosamente');
     return rutinaId;
   } catch (error) {
     await connection.rollback();
@@ -1126,6 +1122,7 @@ async function crearRutina(nombre, descripcion, nivel, objetivo, usuario_creador
     connection.release();
   }
 }
+
 
 
 //Función para obtener todas las rutinas de un usuario
