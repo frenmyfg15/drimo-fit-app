@@ -353,7 +353,6 @@ export async function obtenerEjercicios(rutinaId, dia) {
       try {
         musculosDia = JSON.parse(rows[0].musculos_dia);
       } catch (error) {
-        console.error("⚠️ Error al parsear musculos_dia:", error);
       }
     }
 
@@ -684,7 +683,6 @@ const verificarTodosEjerciciosCompletados = async (rutina_id, dia, fecha) => {
     const resultado = await obtenerEjercicios(rutina_id, dia);
 
     if (!resultado.success || resultado.ejercicios.length === 0) {
-      console.log(`⚠️ No hay ejercicios asignados para ${dia} en la rutina ${rutina_id}`);
       return false;
     }
 
